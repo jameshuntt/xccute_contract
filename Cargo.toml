@@ -1,0 +1,15 @@
+[package]
+name = "xccute_contract"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+license = "MIT OR Apache-2.0"
+description = "The traits a generated command implements: an argv of OsStrings under a root program, structural validation, a side-effect-free preview, policy approval receipts, and execution. The runtime half of simple_impl_derive's subcommand derives."
+authors = ["James Hunt <james@1o.business>"]
+repository = "https://github.com/jameshuntt/xccute_contract"
+readme = "README.md"
+keywords = ["cli", "command", "argv", "validation", "policy"]
+categories = ["command-line-interface"]
+include = ["src/**", "tests/**", "Cargo.toml", "README.md", "LICENSE-MIT", "LICENSE-APACHE"]
+
+[dependencies]
