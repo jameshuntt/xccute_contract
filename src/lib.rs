@@ -105,6 +105,48 @@ pub trait CompositeShellCommand {
             None => status.success(),
         }
     }
+
+    /// The exit statuses this command names, in the order they were declared:
+    /// each code with its program's word for it, and whether the line goes on
+    /// after it. None unless the command declares them.
+    fn exit_statuses(&self) -> &'static [ExitStatusWord] {
+        &[]
+    }
+
+    /// The named status a process ended with, if this command names it (a
+    /// signal is no status).
+    fn exit_status_of(&self, code: Option<i32>) -> Option<ExitStatusWord> {
+        self.exit_statuses().iter().copied().find(|status| status.of(code))
+    }
+}
+
+/// An exit status a command names: its code, its program's word for it, and
+/// whether the line goes on after it (`accepted`) or stops.
+///
+/// `systemctl is-active` names 0 `active` and 3 `inactive`; ssh names 255,
+/// the login or the connection failed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ExitStatusWord {
+    pub code: i32,
+    pub word: &'static str,
+    pub accepted: bool,
+}
+
+impl ExitStatusWord {
+    /// A status the line goes on after.
+    pub const fn accepted(code: i32, word: &'static str) -> Self {
+        Self { code, word, accepted: true }
+    }
+
+    /// A status the line stops at.
+    pub const fn rejected(code: i32, word: &'static str) -> Self {
+        Self { code, word, accepted: false }
+    }
+
+    /// Whether a process ended with this status (a signal is no status).
+    pub fn of(&self, code: Option<i32>) -> bool {
+        code == Some(self.code)
+    }
 }
 
 /// No-side-effect command preview.

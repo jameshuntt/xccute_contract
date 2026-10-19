@@ -12,7 +12,10 @@ A command here is data, never a string handed to a shell:
 - `CompositeArgvPart`: something that pushes its segment and arguments onto
   an argv of `OsString`s.
 - `CompositeShellCommand`: a whole command under a root: `argv()`,
-  `build_display()`, `preview()`, `to_std_command()`, `xccute()`.
+  `build_display()`, `preview()`, `to_std_command()`, `xccute()`, the codes
+  it accepts (`ok_codes()`), and the exit statuses it names
+  (`exit_statuses()`, `exit_status_of(code)`), each an `ExitStatusWord`: a
+  code, the program's word for it, and whether the line goes on after it.
 - `ValidatedCommand`: `validate()` runs the structural rules (`requires`,
   `invalid_without`, `only_pair_with`, `conflicts_with`, `one_of`,
   `at_least_one_of`) and preflight hooks, returning a
