@@ -28,6 +28,11 @@ A command here is data, never a string handed to a shell:
   `path_role`, `dry_run_default` attached to a command type.
 - `RootableSubCommand` / `RootableCompositeSurface`: how a leaf command or a
   nested surface is placed under a root.
+- `RootableNestedCommand` / `RootableNestedSurface`: how a leaf command or a
+  surface is placed under a surface, to any depth, keeping the leaf's
+  setters, exit statuses, validation and policy.
+- `CommandHelp`: the `HelpLine`s a leaf, a surface or a root answers to, each
+  the words a declaration writes (`start [NAME] [--kind KIND]`) and its doc.
 
 No dependencies.
 

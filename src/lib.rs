@@ -760,3 +760,74 @@ where
 
     fn rooted_surface(self) -> Self::RootedSurface;
 }
+
+/// Bridge from a final subcommand fragment into a command under one or more
+/// nested surfaces: the leaf's own setters, exit statuses, validation and
+/// policy, after the surfaces' words.
+///
+/// `prefix` is the surface the leaf sits under, itself under its own parents,
+/// pushing every word between the root's program and the leaf's segment.
+///
+/// `Orb::project().member().add("cp")` ->
+/// `<OrbProjectMemberAdd as RootableNestedCommand<Orb, OrbProjectMemberNested<Orb, OrbProject>>>::Nested`
+pub trait RootableNestedCommand<R, P>
+where
+    R: CompositeShellRoot,
+    P: CompositeArgvPart,
+{
+    type Nested: CompositeShellCommand;
+
+    fn nested(self, prefix: P) -> Self::Nested;
+}
+
+/// Bridge from a composite subcommand surface into a surface under another
+/// surface, so a surface can hold surfaces to any depth.
+///
+/// `Orb::project().member()` ->
+/// `<OrbProjectMember as RootableNestedSurface<Orb, OrbProject>>::NestedSurface`
+pub trait RootableNestedSurface<R, P>
+where
+    R: CompositeShellRoot,
+    P: CompositeArgvPart,
+{
+    type NestedSurface: CompositeArgvPart;
+
+    fn nested_surface(self, prefix: P) -> Self::NestedSurface;
+}
+
+/// One line a declared command answers to, for a usage screen.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct HelpLine {
+    /// The words of the line after its parents' words, as the declaration
+    /// writes them: `start [NAME] [--kind KIND] [--again]`.
+    pub words: String,
+    /// The declaration's doc, its lines joined by a space; empty when it has
+    /// none.
+    pub about: &'static str,
+}
+
+impl HelpLine {
+    pub fn new(words: impl Into<String>, about: &'static str) -> Self {
+        Self { words: words.into(), about }
+    }
+
+    /// The same line led by `word`: a surface's segment, or a root's program.
+    pub fn under(self, word: &str) -> Self {
+        let words = match (word.is_empty(), self.words.is_empty()) {
+            (true, _) => self.words,
+            (false, true) => word.to_owned(),
+            (false, false) => format!("{word} {}", self.words),
+        };
+        Self { words, about: self.about }
+    }
+}
+
+/// The lines a declared command, surface or root program answers to.
+///
+/// A leaf (`SimpleSubCommand`) has one line, led by its segment. A surface
+/// (`CompositeSubCommand`) has every line under it, each led by its segment.
+/// A root (`CompositeShell`) has every line under it, each led by its
+/// program, so each is a whole line: `orb project member add NAME [--role ROLE]`.
+pub trait CommandHelp {
+    fn help_lines() -> Vec<HelpLine>;
+}
